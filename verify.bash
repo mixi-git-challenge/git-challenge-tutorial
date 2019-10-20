@@ -2,11 +2,11 @@
 
 set -e
 
-EXPECTED_REMOTE_URL="https://${GH_TOKEN}@github.com/${DRONE_REPO}"
+EXPECTED_REMOTE_URL="https://${GH_TOKEN}@github.com/mixi-git-challenge/git-challenge-tutorial-answer"
 EXPECTED_REMOTE_NAME='expected'
 CSV_FILE='users.csv'
 REMOTE_ORIGIN_MASTER_HEAD='1b15331985e1ee2463b7a055bc95be73c9179049'
-EXPECTED_ANSWER_BRANCH='answer'
+EXPECTED_ANSWER_BRANCH='master'
 
 function throw() {
   MESSAGE="$1"
