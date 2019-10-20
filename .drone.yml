@@ -1,0 +1,75 @@
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  depth: 2
+
+steps:
+- name: check answer
+  image: buildpack-deps:16.04-scm
+  commands:
+  - pwd
+  - "export PATH=$${PATH}:`pwd`/bin"
+  - "rm -rf target && git clone https://$GH_TOKEN@github.com/`cat REPOSITORY`.git target"
+  - "cd target && ../verify.bash"
+  environment:
+    GH_TOKEN:
+      from_secret: github_token
+  when:
+    branch:
+      exclude:
+      - ci
+    event:
+    - push
+
+- name: notify slack
+  image: plugins/slack
+  detach: true
+  settings:
+    template: チーム {{build.branch}} が {{repo.name}} を正解したみたいだよ！すごーい！！
+    webhook:
+      from_secret: slack_webhook
+  when:
+    branch:
+      exclude:
+      - ci
+    event:
+    - push
+    status:
+    - success
+
+- name: notify drone log to slack
+  image: matsubara0507/slack-notify-log
+  detach: true
+  settings:
+    template: >
+      {{#success build.status}}
+        {{repo.name}} を正解したみたいだよ！すごーい！！
+      {{else}}
+        {{repo.name}} は不正解だね...残念！
+      {{/success}}
+    token:
+      from_secret: slack_token
+    channel: team-{{build.branch}}-11
+    step_number: 2
+    drone_host:
+      from_secret: drone_host
+    drone_token:
+      from_secret: drone_token
+  when:
+    branch:
+      exclude:
+      - ci
+      - ci_answer
+    event:
+    - push
+    status:
+    - success
+    - failure
+
+...
