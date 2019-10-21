@@ -10,6 +10,24 @@ clone:
   depth: 2
 
 steps:
+- name: update score to progress in cache
+  image: buildpack-deps:16.04-curl
+  commands:
+  - "curl -XPUT $APP_HOST/api/scores/$DRONE_REPO"
+  environment:
+    APP_HOST:
+      from_secret: app_host
+  when:
+    branch:
+      exclude:
+      - ci
+      - ci_answer
+    event:
+    - push
+    status:
+    - success
+    - failure
+
 - name: check answer
   image: buildpack-deps:16.04-scm
   commands:
@@ -53,8 +71,8 @@ steps:
       {{/success}}
     token:
       from_secret: slack_token
-    channel: team-{{build.branch}}-11
-    step_number: 2
+    channel: team-{{build.branch}}-12
+    step_number: 3
     drone_host:
       from_secret: drone_host
     drone_token:
@@ -70,7 +88,7 @@ steps:
     - success
     - failure
 
-- name: update score in cache
+- name: update score to success in cache
   image: buildpack-deps:16.04-curl
   commands:
   - "curl -XPUT $APP_HOST/api/scores/$DRONE_REPO"
