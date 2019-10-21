@@ -29,7 +29,6 @@ steps:
 
 - name: notify slack
   image: plugins/slack
-  detach: true
   settings:
     template: チーム {{build.branch}} が {{repo.name}} を正解したみたいだよ！すごーい！！
     webhook:
@@ -45,7 +44,6 @@ steps:
 
 - name: notify drone log to slack
   image: matsubara0507/slack-notify-log
-  detach: true
   settings:
     template: >
       {{#success build.status}}
@@ -61,6 +59,24 @@ steps:
       from_secret: drone_host
     drone_token:
       from_secret: drone_token
+  when:
+    branch:
+      exclude:
+      - ci
+      - ci_answer
+    event:
+    - push
+    status:
+    - success
+    - failure
+
+- name: update score in cache
+  image: buildpack-deps:16.04-curl
+  commands:
+  - "curl -XPUT $APP_HOST/api/scores/$DRONE_REPO"
+  environment:
+    APP_HOST:
+      from_secret: app_host
   when:
     branch:
       exclude:
