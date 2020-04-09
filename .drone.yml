@@ -71,7 +71,7 @@ steps:
       {{/success}}
     token:
       from_secret: slack_token
-    channel: team-{{build.branch}}-12
+    channel: kusa-test
     step_number: 3
     drone_host:
       from_secret: drone_host
