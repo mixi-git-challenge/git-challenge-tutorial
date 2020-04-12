@@ -45,33 +45,19 @@ steps:
     event:
     - push
 
-- name: notify slack
-  image: plugins/slack
-  settings:
-    template: チーム {{build.branch}} が {{repo.name}} を正解したみたいだよ！すごーい！！
-    webhook:
-      from_secret: slack_webhook
-  when:
-    branch:
-      exclude:
-      - ci
-    event:
-    - push
-    status:
-    - success
-
 - name: notify drone log to slack
   image: matsubara0507/slack-notify-log
   settings:
     template: >
       {{#success build.status}}
-        {{repo.name}} を正解したみたいだよ！すごーい！！
+        チーム {{build.branch}} が {{repo.name}} を正解したみたいだよ！すごーい！！
       {{else}}
-        {{repo.name}} は不正解だね...残念！
+        チーム {{build.branch}} の {{repo.name}} は不正解だね...残念！
       {{/success}}
     token:
       from_secret: slack_token
-    channel: kusa-test
+    channel:
+      from_secret: notify_slack_channel
     step_number: 3
     drone_host:
       from_secret: drone_host
